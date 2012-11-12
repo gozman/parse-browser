@@ -285,7 +285,7 @@
 }
 
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    NSLog(@"row#: %ld; columnName:%@",row,[tableColumn identifier]);
+    //NSLog(@"row#: %ld; columnName:%@",row,[tableColumn identifier]);
     TextFieldCell *result = [tableView makeViewWithIdentifier:@"MyView" owner:self];
                 
     if (result == nil) {
@@ -298,6 +298,7 @@
     
     id entry = [[_tableData objectAtIndex:row] objectForKey:[tableColumn identifier]];
     if([entry isKindOfClass:[NSDictionary class]]) {
+        result.stringValue = @"";
         NSString* type = [entry objectForKey:@"__type"];
         if([type isEqualToString:@"Date"]) {
             result.stringValue = [entry objectForKey:@"iso"];
@@ -307,6 +308,28 @@
         }
         if([type isEqualToString:@"File"]) {
             result.stringValue = [entry objectForKey:@"url"];
+        }
+        if(!type) {
+            //format ACL string properly
+            NSMutableString* ACL = [[NSMutableString alloc] init];
+            [ACL appendString:@"{"];
+            
+            NSArray* ACLObjectList = [(NSDictionary*)entry allKeys];
+            for(int i=0; i< ACLObjectList.count; i++) {
+                [ACL appendString:[NSString stringWithFormat:@"\"%@\":{",[ACLObjectList objectAtIndex:i]]];
+                
+                NSDictionary* objectProperties = [(NSDictionary*)entry objectForKey:[ACLObjectList objectAtIndex:i]];
+                NSArray* objectPropertyList = [objectProperties allKeys];
+                for(int j=0; j < objectPropertyList.count; j++) {
+                    [ACL appendString:[NSString stringWithFormat:@"\"%@\":true,",[objectPropertyList objectAtIndex:j]]];
+                }
+                 ACL = [NSMutableString stringWithString:[ACL substringToIndex:[ACL length] -1]];
+                [ACL appendString:@"},"];
+            }
+            ACL = [NSMutableString stringWithString:[ACL substringToIndex:[ACL length] -1]];
+            [ACL appendString:@"}"];
+            
+            result.stringValue = ACL;
         }
     } else {
         if(!entry) {
