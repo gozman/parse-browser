@@ -1,0 +1,8 @@
+//
+// Prefix header for all source files of the 'Parse Browser' target in the 'Parse Browser' project
+//
+
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+    #import "Constants.h"
+#endif
