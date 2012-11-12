@@ -227,10 +227,10 @@
             if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
                 NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*)response;
                 if([httpResponse statusCode] == 200) {
-                    [self.dataTable beginUpdates];
-                    [self.dataTable scrollRowToVisible:0];
-                    [self clearTable];
                     _tableData = [[decoder objectWithData:data] objectForKey:@"results"];
+                    [self.dataTable scrollRowToVisible:0];
+                    [self.dataTable beginUpdates];
+                    [self clearTable];
                     if([_tableData count] > 0) {
                         NSMutableArray* columnNames = [[NSMutableArray alloc] init];
                         
@@ -255,7 +255,7 @@
                         
                         _columns = [NSArray arrayWithArray:columnTitles];
                     }
-                    
+                    [self.dataTable noteNumberOfRowsChanged];
                     [self.dataTable endUpdates];
                     [self.dataTable reloadData];
                     
@@ -285,7 +285,7 @@
 }
 
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    //NSLog(@"row#: %ld; columnName:%@",row,[tableColumn identifier]);
+    NSLog(@"row#: %ld; columnName:%@",row,[tableColumn identifier]);
     TextFieldCell *result = [tableView makeViewWithIdentifier:@"MyView" owner:self];
                 
     if (result == nil) {
