@@ -14,5 +14,6 @@
 @property (strong) IBOutlet NSTextField *className;
 @property (strong) IBOutlet NSTableView *dataTable;
 @property (strong) IBOutlet NSTextView *responseConsoleTextView;
+@property (strong) IBOutlet NSScrollView *scrollView;
 
 @end

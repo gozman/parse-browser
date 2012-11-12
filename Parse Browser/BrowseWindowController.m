@@ -228,6 +228,7 @@
                 NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*)response;
                 if([httpResponse statusCode] == 200) {
                     [self.dataTable beginUpdates];
+                    [self.dataTable scrollRowToVisible:0];
                     [self clearTable];
                     _tableData = [[decoder objectWithData:data] objectForKey:@"results"];
                     if([_tableData count] > 0) {
@@ -284,8 +285,8 @@
 }
 
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-                
-   TextFieldCell *result = [tableView makeViewWithIdentifier:@"MyView" owner:self];
+    //NSLog(@"row#: %ld; columnName:%@",row,[tableColumn identifier]);
+    TextFieldCell *result = [tableView makeViewWithIdentifier:@"MyView" owner:self];
                 
     if (result == nil) {
         result = [[TextFieldCell alloc] initWithFrame:CGRectMake(0, 0, 50, 20)];
@@ -314,6 +315,8 @@
             result.stringValue = entry;
         }
     }
+    
+    [result setSelectable:YES];
     
     if([[tableColumn identifier] isEqualToString:@"objectId"] ||[[tableColumn identifier] isEqualToString:@"createdAt"] || [[tableColumn identifier] isEqualToString:@"updatedAt"]) {
         [result setEditable:NO];

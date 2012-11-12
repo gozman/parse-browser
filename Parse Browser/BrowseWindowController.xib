@@ -62,7 +62,6 @@
 							<string key="NSFrame">{{0, 299}, {892, 125}}</string>
 							<reference key="NSSuperview" ref="1006"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView" ref="1044795033"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<array class="NSMutableArray" key="NSTabViewItems">
 								<object class="NSTabViewItem" id="483020211">
@@ -151,7 +150,7 @@
 																<string key="NSFrameSize">{202, 73}</string>
 																<reference key="NSSuperview" ref="547758911"/>
 																<reference key="NSWindow"/>
-																<reference key="NSNextKeyView" ref="826685097"/>
+																<reference key="NSNextKeyView" ref="400597531"/>
 																<string key="NSReuseIdentifierKey">_NS:13</string>
 																<object class="NSTextContainer" key="NSTextContainer" id="1046758953">
 																	<object class="NSLayoutManager" key="NSLayoutManager">
@@ -419,7 +418,7 @@ wGw</bytes>
 												<string key="NSFrame">{{9, 1}, {219, 78}}</string>
 												<reference key="NSSuperview" ref="1044795033"/>
 												<reference key="NSWindow"/>
-												<reference key="NSNextKeyView" ref="400597531"/>
+												<reference key="NSNextKeyView" ref="547758911"/>
 												<string key="NSReuseIdentifierKey">_NS:9</string>
 												<int key="NSsFlags">133138</int>
 												<reference key="NSVScroller" ref="826685097"/>
@@ -478,7 +477,7 @@ wGw</bytes>
 											<string key="NSFrameSize">{876, 282}</string>
 											<reference key="NSSuperview" ref="786314222"/>
 											<reference key="NSWindow"/>
-											<reference key="NSNextKeyView" ref="890078229"/>
+											<reference key="NSNextKeyView" ref="493236965"/>
 											<string key="NSReuseIdentifierKey">_NS:13</string>
 											<bool key="NSEnabled">YES</bool>
 											<object class="NSTableHeaderView" key="NSHeaderView" id="507127493">
@@ -549,8 +548,7 @@ wGw</bytes>
 									<string key="NSReuseIdentifierKey">_NS:58</string>
 									<reference key="NSTarget" ref="540069640"/>
 									<string key="NSAction">_doScroller:</string>
-									<double key="NSCurValue">1</double>
-									<double key="NSPercent">0.98581560283687941</double>
+									<double key="NSPercent">0.99646643109540634</double>
 								</object>
 								<object class="NSScroller" id="529268819">
 									<reference key="NSNextResponder" ref="540069640"/>
@@ -584,7 +582,7 @@ wGw</bytes>
 							<string key="NSFrame">{{7, 8}, {878, 300}}</string>
 							<reference key="NSSuperview" ref="1006"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView" ref="493236965"/>
+							<reference key="NSNextKeyView" ref="786314222"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<int key="NSsFlags">133682</int>
 							<reference key="NSVScroller" ref="890078229"/>
@@ -654,6 +652,14 @@ wGw</bytes>
 						<reference key="destination" ref="839489080"/>
 					</object>
 					<int key="connectionID">82</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">scrollView</string>
+						<reference key="source" ref="1001"/>
+						<reference key="destination" ref="540069640"/>
+					</object>
+					<int key="connectionID">83</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -881,7 +887,7 @@ wGw</bytes>
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">82</int>
+			<int key="maxID">83</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -892,6 +898,7 @@ wGw</bytes>
 						<string key="className">NSTextField</string>
 						<string key="dataTable">NSTableView</string>
 						<string key="responseConsoleTextView">NSTextView</string>
+						<string key="scrollView">NSScrollView</string>
 						<string key="simpleQueryView">NSView</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
@@ -906,6 +913,10 @@ wGw</bytes>
 						<object class="IBToOneOutletInfo" key="responseConsoleTextView">
 							<string key="name">responseConsoleTextView</string>
 							<string key="candidateClassName">NSTextView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="scrollView">
+							<string key="name">scrollView</string>
+							<string key="candidateClassName">NSScrollView</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="simpleQueryView">
 							<string key="name">simpleQueryView</string>
