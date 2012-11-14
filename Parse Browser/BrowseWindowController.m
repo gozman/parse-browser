@@ -16,6 +16,8 @@
     NSArray* _tableData;
     NSArray* _columns;
     NSString* _currentClass;
+    int _numberOfConstraints;
+    NSOperationQueue* _operationQueue;
 }
 
 - (NSString*)getParamsFromBasicQuery;
@@ -34,8 +36,9 @@
         _tableData = [[NSArray alloc] init];
         _columns = [[NSArray alloc] init];
         _currentClass = nil;
+        _numberOfConstraints = 0;
+        _operationQueue = [[NSOperationQueue alloc] init];
     }
-    
     return self;
 }
 
@@ -115,6 +118,7 @@
     
     //controller
     ConstraintViewController* currentController = [_constraintControllerArray objectAtIndex:[sender tag]];
+    _numberOfConstraints++;
     
     //Show rest of the current constraint view
     [[currentController constraintFormView] setHidden:NO];
@@ -182,12 +186,13 @@
     [[currentConstraintConstroller addConstraintButton] setEnabled:YES];
     
     //Remove the next constraint view from the window and delete the entry in the constraint constroller array
-    if([sender tag] < (MAX_CONSTRAINTS - 1)) {
+    if(_numberOfConstraints < MAX_CONSTRAINTS) {
         ConstraintViewController* nextConstraintConstroller = [_constraintControllerArray objectAtIndex:([sender tag] + 1)];
         [[nextConstraintConstroller view] removeFromSuperview];
         [_constraintControllerArray removeLastObject];
     }
     
+    _numberOfConstraints--;
 }
 
 - (IBAction)getData:(NSButton*)sender {
@@ -211,25 +216,25 @@
         _currentClass = [self.className stringValue];
         
         NSString* urlString = nil;
+        NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
         
         if(_constraintControllerArray.count == 1) {
-            urlString = [NSString stringWithFormat:@"https://api.parse.com/1/classes/%@",[self.className stringValue]];
+            urlString = [NSString stringWithFormat:@"https://api.parse.com/1/classes/%@?limit=%ld",[self.className stringValue],[prefs integerForKey:@"query-result-limit"]];
         } else {
-            urlString = [NSString stringWithFormat:@"https://api.parse.com/1/classes/%@?%@",[self.className stringValue],[self getParamsFromBasicQuery]];
+            urlString = [NSString stringWithFormat:@"https://api.parse.com/1/classes/%@?limit=%ld&%@",[self.className stringValue],[prefs integerForKey:@"query-result-limit"],[self getParamsFromBasicQuery]];
         }
         
         NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
-        [request addValue:@"9hrI0yl4JxdZuTSlAHXZxROtHRXbFd2QeBCaHCAY" forHTTPHeaderField:@"X-Parse-Application-Id"];
-        [request addValue:@"rz12fkyL9jEKfnByEcq2QQ0h2P6c95qTHJNaTZcv" forHTTPHeaderField:@"X-Parse-REST-API-Key"];
-        [request addValue:@"FBWK6u1JIvTsbVjojwm34SFqxmnsX52K7DgE04fZ" forHTTPHeaderField:@"X-Parse-Master-Key"];
-        NSOperationQueue* queue = [[NSOperationQueue alloc] init];
-        [NSURLConnection sendAsynchronousRequest:request queue:queue completionHandler:^(NSURLResponse * response, NSData * data, NSError * error) {
+        [request setHTTPMethod:@"GET"];
+        [request addValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"application-id"] forHTTPHeaderField:@"X-Parse-Application-Id"];
+        [request addValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"master-key"] forHTTPHeaderField:@"X-Parse-Master-Key"];
+        [NSURLConnection sendAsynchronousRequest:request queue:_operationQueue completionHandler:^(NSURLResponse * response, NSData * data, NSError * error) {
             if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
                 NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*)response;
                 if([httpResponse statusCode] == 200) {
                     _tableData = [[decoder objectWithData:data] objectForKey:@"results"];
-                    [self.dataTable scrollRowToVisible:0];
                     [self.dataTable beginUpdates];
+                    [self.dataTable scrollRowToVisible:0];
                     [self clearTable];
                     if([_tableData count] > 0) {
                         NSMutableArray* columnNames = [[NSMutableArray alloc] init];
@@ -298,7 +303,7 @@
     
     id entry = [[_tableData objectAtIndex:row] objectForKey:[tableColumn identifier]];
     if([entry isKindOfClass:[NSDictionary class]]) {
-        result.stringValue = @"";
+        result.stringValue = [entry description];
         NSString* type = [entry objectForKey:@"__type"];
         if([type isEqualToString:@"Date"]) {
             result.stringValue = [entry objectForKey:@"iso"];
@@ -309,7 +314,7 @@
         if([type isEqualToString:@"File"]) {
             result.stringValue = [entry objectForKey:@"url"];
         }
-        if(!type) {
+        if([[tableColumn identifier] isEqualToString:@"ACL"]) {
             //format ACL string properly
             NSMutableString* ACL = [[NSMutableString alloc] init];
             [ACL appendString:@"{"];
@@ -331,6 +336,14 @@
             
             result.stringValue = ACL;
         }
+        if([[tableColumn identifier] isEqualToString:@"authData"]) {
+            //format authData string properly
+            if([entry objectForKey:@"facebook"]) {;
+                result.stringValue = [NSString stringWithFormat:@"Facebook ID:%@",[[entry objectForKey:@"facebook"] objectForKey:@"id"]];
+            } else if([entry objectForKey:@"anonymous"]) {
+                result.stringValue = @"Anonymous";
+            }
+        }
     } else {
         if(!entry) {
             result.stringValue = @"";
@@ -339,9 +352,11 @@
         }
     }
     
-    [result setSelectable:YES];
     
-    if([[tableColumn identifier] isEqualToString:@"objectId"] ||[[tableColumn identifier] isEqualToString:@"createdAt"] || [[tableColumn identifier] isEqualToString:@"updatedAt"]) {
+    
+    //Stop users from editing special class properties but still allowing text selection
+    [result setSelectable:YES];
+    if([[tableColumn identifier] isEqualToString:@"objectId"] ||[[tableColumn identifier] isEqualToString:@"createdAt"] || [[tableColumn identifier] isEqualToString:@"updatedAt"] || [[tableColumn identifier] isEqualToString:@"authData"]) {
         [result setEditable:NO];
     } else {
         [result setEditable:YES];
@@ -398,11 +413,9 @@
     NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     [request setHTTPMethod:@"PUT"];
     [request setHTTPBody:[body dataUsingEncoding:NSUTF8StringEncoding]];
-    [request addValue:@"9hrI0yl4JxdZuTSlAHXZxROtHRXbFd2QeBCaHCAY" forHTTPHeaderField:@"X-Parse-Application-Id"];
-    [request addValue:@"rz12fkyL9jEKfnByEcq2QQ0h2P6c95qTHJNaTZcv" forHTTPHeaderField:@"X-Parse-REST-API-Key"];
-    [request addValue:@"FBWK6u1JIvTsbVjojwm34SFqxmnsX52K7DgE04fZ" forHTTPHeaderField:@"X-Parse-Master-Key"];
-    NSOperationQueue* queue = [[NSOperationQueue alloc] init];
-    [NSURLConnection sendAsynchronousRequest:request queue:queue completionHandler:^(NSURLResponse * response, NSData * data, NSError * error) {
+    [request addValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"application-id"] forHTTPHeaderField:@"X-Parse-Application-Id"];
+    [request addValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"master-key"] forHTTPHeaderField:@"X-Parse-Master-Key"];
+    [NSURLConnection sendAsynchronousRequest:request queue:_operationQueue completionHandler:^(NSURLResponse * response, NSData * data, NSError * error) {
         if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*)response;
             if([httpResponse statusCode] == 200) {
@@ -417,44 +430,42 @@
 - (NSString*)getParamsFromBasicQuery {
     NSMutableString* paramString = [NSMutableString stringWithString:@"where={"];
     
-    for(int i =0; i<_constraintControllerArray.count; i++) {
+    for(int i =0; i<_numberOfConstraints; i++) {
         ConstraintViewController* currentController = (ConstraintViewController*)[_constraintControllerArray objectAtIndex:i];
-        if(![[currentController constraintFormView] isHidden]) {
-            //Get form entries
-            NSString* columnName = [[currentController columnName] stringValue];
-            NSString* constraintVerb = [self getConstraintVerbFromPopUpButton:[currentController constraintType]];
-            NSString* constraintValue = [[currentController constraintValue] stringValue];
-            NSString* columnType = [self getColumnTypeFromPopUpButton:[currentController columnType]];
-            NSString* columnClass = [[currentController pointerClassName] stringValue];
-            
-            //Construct JSON GET request
-            if([constraintVerb isEqualToString:@"$exists"]) {
-                [paramString appendString:[NSString stringWithFormat:@"\"%@\" : {\"%@\" :%@},",columnName,constraintVerb,[constraintValue lowercaseString]]];
-            } else {
-                if( [columnType isEqualToString:@"Number"]) {
-                    if([constraintVerb isEqualToString:@"$e"]) {
-                        [paramString appendString:[NSString stringWithFormat:@"\"%@\" : %@,",columnName,constraintValue]];
-                    } else {
-                        [paramString appendString:[NSString stringWithFormat:@"\"%@\" : {\"%@\" : %@},",columnName,constraintVerb,constraintValue]];
-                    }
-                } else if( [columnType isEqualToString:@"Boolean"]) {
-                    if([constraintVerb isEqualToString:@"$e"]) {
-                        [paramString appendString:[NSString stringWithFormat:@"\"%@\" :%@,",columnName,[constraintValue lowercaseString]]];
-                    } else {
-                        [paramString appendString:[NSString stringWithFormat:@"\"%@\" : {\"%@\" :%@},",columnName,constraintVerb,[constraintValue lowercaseString]]];
-                    }
-                } else  if([columnType isEqualToString:@"Pointer"]) {
-                    if([constraintVerb isEqualToString:@"$e"]) {
-                        [paramString appendString:[NSString stringWithFormat:@"\"%@\" : {\"__type\":\"Pointer\",\"className\":\"%@\",\"objectId\":\"%@\"},",columnName,columnClass,constraintValue]];
-                    } else {
-                        [paramString appendString:[NSString stringWithFormat:@"\"%@\" : {\"%@\" : {\"__type\":\"Pointer\",\"className\":\"%@\",\"objectId\":\"%@\"}},",columnName,constraintVerb,columnClass,constraintValue]];
-                    }
-                } else  if([columnType isEqualToString:@"String"]) {
-                    if([constraintVerb isEqualToString:@"$e"]) {
-                        [paramString appendString:[NSString stringWithFormat:@"\"%@\" : \"%@\",",columnName,constraintValue]];
-                    } else {
-                        [paramString appendString:[NSString stringWithFormat:@"\"%@\" : {\"%@\" : \"%@\"},",columnName,constraintVerb,constraintValue]];
-                    }
+        //Get form entries
+        NSString* columnName = [[currentController columnName] stringValue];
+        NSString* constraintVerb = [self getConstraintVerbFromPopUpButton:[currentController constraintType]];
+        NSString* constraintValue = [[currentController constraintValue] stringValue];
+        NSString* columnType = [self getColumnTypeFromPopUpButton:[currentController columnType]];
+        NSString* columnClass = [[currentController pointerClassName] stringValue];
+        
+        //Construct JSON GET request
+        if([constraintVerb isEqualToString:@"$exists"]) {
+            [paramString appendString:[NSString stringWithFormat:@"\"%@\" : {\"%@\" :%@},",columnName,constraintVerb,[constraintValue lowercaseString]]];
+        } else {
+            if( [columnType isEqualToString:@"Number"]) {
+                if([constraintVerb isEqualToString:@"$e"]) {
+                    [paramString appendString:[NSString stringWithFormat:@"\"%@\" : %@,",columnName,constraintValue]];
+                } else {
+                    [paramString appendString:[NSString stringWithFormat:@"\"%@\" : {\"%@\" : %@},",columnName,constraintVerb,constraintValue]];
+                }
+            } else if( [columnType isEqualToString:@"Boolean"]) {
+                if([constraintVerb isEqualToString:@"$e"]) {
+                    [paramString appendString:[NSString stringWithFormat:@"\"%@\" :%@,",columnName,[constraintValue lowercaseString]]];
+                } else {
+                    [paramString appendString:[NSString stringWithFormat:@"\"%@\" : {\"%@\" :%@},",columnName,constraintVerb,[constraintValue lowercaseString]]];
+                }
+            } else  if([columnType isEqualToString:@"Pointer"]) {
+                if([constraintVerb isEqualToString:@"$e"]) {
+                    [paramString appendString:[NSString stringWithFormat:@"\"%@\" : {\"__type\":\"Pointer\",\"className\":\"%@\",\"objectId\":\"%@\"},",columnName,columnClass,constraintValue]];
+                } else {
+                    [paramString appendString:[NSString stringWithFormat:@"\"%@\" : {\"%@\" : {\"__type\":\"Pointer\",\"className\":\"%@\",\"objectId\":\"%@\"}},",columnName,constraintVerb,columnClass,constraintValue]];
+                }
+            } else  if([columnType isEqualToString:@"String"]) {
+                if([constraintVerb isEqualToString:@"$e"]) {
+                    [paramString appendString:[NSString stringWithFormat:@"\"%@\" : \"%@\",",columnName,constraintValue]];
+                } else {
+                    [paramString appendString:[NSString stringWithFormat:@"\"%@\" : {\"%@\" : \"%@\"},",columnName,constraintVerb,constraintValue]];
                 }
             }
         }
@@ -467,11 +478,19 @@
 }
 
 - (BOOL) constraintFormsFilled {
-    for(int i=0; i<_constraintControllerArray.count-1; i++) {
-        NSString* columnName = [[(ConstraintViewController*)[_constraintControllerArray objectAtIndex:i] columnName] stringValue];
-        NSString* constraintValue = [[(ConstraintViewController*)[_constraintControllerArray objectAtIndex:i] constraintValue] stringValue];
+    for(int i=0; i<_numberOfConstraints; i++) {
+        ConstraintViewController* currentController = (ConstraintViewController*)[_constraintControllerArray objectAtIndex:i];
+        NSString* columnName = [[currentController columnName] stringValue];
+        NSString* constraintValue = [[currentController constraintValue] stringValue];
+        NSString* columnType = [self getColumnTypeFromPopUpButton:[currentController columnType]];
+        NSString* columnClass = [[currentController pointerClassName] stringValue];
         if(columnName.length == 0 || constraintValue.length == 0) {
-            return false;
+            return NO;
+        }
+        if([columnType isEqualToString:@"Pointer"]) {
+            if(columnClass.length == 0) {
+                return NO;
+            }
         }
     }
     

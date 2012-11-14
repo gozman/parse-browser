@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		0E0A6C19164B177400F6AD66 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0E0A6C16164B174F00F6AD66 /* Cocoa.framework */; };
+		0E61421E1652FDBD00861680 /* PreferenceWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E61421C1652FDBD00861680 /* PreferenceWindowController.m */; };
+		0E61421F1652FDBD00861680 /* PreferenceWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0E61421D1652FDBD00861680 /* PreferenceWindowController.xib */; };
 		0E92F7A61641694F0082F651 /* ConstraintView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0E92F7A51641694F0082F651 /* ConstraintView.xib */; };
 		0E92F7AD164187DA0082F651 /* ConstraintViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E92F7AC164187DA0082F651 /* ConstraintViewController.m */; };
 		0E92F7BA16419D600082F651 /* BrowseWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E92F7B816419D600082F651 /* BrowseWindowController.m */; };
@@ -36,6 +38,9 @@
 
 /* Begin PBXFileReference section */
 		0E0A6C16164B174F00F6AD66 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		0E61421B1652FDBD00861680 /* PreferenceWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferenceWindowController.h; sourceTree = "<group>"; };
+		0E61421C1652FDBD00861680 /* PreferenceWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferenceWindowController.m; sourceTree = "<group>"; };
+		0E61421D1652FDBD00861680 /* PreferenceWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferenceWindowController.xib; sourceTree = "<group>"; };
 		0E92F7A51641694F0082F651 /* ConstraintView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ConstraintView.xib; sourceTree = "<group>"; };
 		0E92F7AB164187DA0082F651 /* ConstraintViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConstraintViewController.h; sourceTree = "<group>"; };
 		0E92F7AC164187DA0082F651 /* ConstraintViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConstraintViewController.m; sourceTree = "<group>"; };
@@ -144,6 +149,9 @@
 				0E92F7B816419D600082F651 /* BrowseWindowController.m */,
 				0E92F7B916419D600082F651 /* BrowseWindowController.xib */,
 				0E92F7C01641A4E10082F651 /* MainMenu.xib */,
+				0E61421B1652FDBD00861680 /* PreferenceWindowController.h */,
+				0E61421C1652FDBD00861680 /* PreferenceWindowController.m */,
+				0E61421D1652FDBD00861680 /* PreferenceWindowController.xib */,
 				0EA41F781640685B005B805E /* Supporting Files */,
 			);
 			path = "Parse Browser";
@@ -256,6 +264,7 @@
 				0E92F7A61641694F0082F651 /* ConstraintView.xib in Resources */,
 				0E92F7BB16419D600082F651 /* BrowseWindowController.xib in Resources */,
 				0E92F7C11641A4E20082F651 /* MainMenu.xib in Resources */,
+				0E61421F1652FDBD00861680 /* PreferenceWindowController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -297,6 +306,7 @@
 				0E971E951642EC2400FFB58D /* Constants.m in Sources */,
 				0E95C7D7164413CD00F9D23C /* JSONKit.m in Sources */,
 				0E948BE8164DAB0900435319 /* TextFieldCell.m in Sources */,
+				0E61421E1652FDBD00861680 /* PreferenceWindowController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -8,9 +8,11 @@
 
 #import <Cocoa/Cocoa.h>
 #import "BrowseWindowController.h"
+#import "PreferenceWindowController.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate> {
     BrowseWindowController* mainWindowController;
+    PreferenceWindowController* preferenceWindowController;
 }
 
 
