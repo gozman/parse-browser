@@ -13,6 +13,8 @@
 @property (strong) IBOutlet NSTextField *applicationIDField;
 @property (strong) IBOutlet NSTextField *masterKeyField;
 @property (strong) IBOutlet NSTextField *queryResultLimit;
+@property (strong) IBOutlet NSButton *savePreferencesButton;
+@property (strong) IBOutlet NSTextField *limitErrorText;
 
 
 @end
