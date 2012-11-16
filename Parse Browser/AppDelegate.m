@@ -13,11 +13,15 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     
-    if (mainWindowController == NULL){
-		mainWindowController = [[BrowseWindowController alloc] initWithWindowNibName:@"BrowseWindowController"];
+    if(!browserWindowArray) {
+        browserWindowArray = [[NSMutableArray alloc] init];
+    }
+    
+    if (browserWindowArray.count == 0){
+		[browserWindowArray addObject:[[BrowseWindowController alloc] initWithWindowNibName:@"BrowseWindowController"]];
     }
 	
-	[mainWindowController showWindow:self];
+	[[browserWindowArray objectAtIndex:0] showWindow:self];
     
     //Check for the user preferences have been set
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
@@ -34,13 +38,30 @@
     }
 }
 
--(IBAction)launchPreferences:(id)sender {
+#pragma mark -
+#pragma mark Main Menu button actions
+
+- (IBAction)launchPreferences:(id)sender {
     if (preferenceWindowController == NULL){
 		preferenceWindowController = [[PreferenceWindowController alloc] initWithWindowNibName:@"PreferenceWindowController"];
     }
 	
 	[preferenceWindowController showWindow:self];
     
+}
+
+- (IBAction)launchNewBrowserWindow:(id)sender {
+    [browserWindowArray addObject:[[BrowseWindowController alloc] initWithWindowNibName:@"BrowseWindowController"]];
+	
+	[[browserWindowArray lastObject] showWindow:self];
+    
+}
+
+#pragma mark -
+#pragma mark Utilities
+
+- (NSMutableArray*)getBrowserArray {
+    return browserWindowArray;
 }
 
 @end

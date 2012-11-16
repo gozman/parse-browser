@@ -8,6 +8,7 @@
 
 #import "BrowseWindowController.h"
 #import "ConstraintViewController.h"
+#import "AppDelegate.h"
 #import "JSONKit.h"
 #import "TextFieldCell.h"
 
@@ -45,6 +46,7 @@
 - (void)windowDidLoad
 {
     [super windowDidLoad];
+    self.window.delegate = self;
     
     //Generate constraint form view
     ConstraintViewController* newConstraint = [[ConstraintViewController alloc] initWithNibName:@"ConstraintView" bundle:nil];
@@ -386,6 +388,15 @@
 #pragma mark NSTableView Delegate methods
 - (CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row {
     return 20;
+}
+
+#pragma mark -
+#pragma mark NSWindow Delegate methods
+- (void)windowWillClose:(NSNotification *)notification {
+    AppDelegate* appDelegate = (AppDelegate*)[[NSApplication sharedApplication] delegate];
+    
+    NSMutableArray* browserArray = [appDelegate getBrowserArray];
+    [browserArray removeObject:self];
 }
      
 #pragma mark -

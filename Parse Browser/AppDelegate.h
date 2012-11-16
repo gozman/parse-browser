@@ -11,9 +11,11 @@
 #import "PreferenceWindowController.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate> {
+    NSMutableArray* browserWindowArray;
     BrowseWindowController* mainWindowController;
     PreferenceWindowController* preferenceWindowController;
 }
 
+- (NSMutableArray*)getBrowserArray;
 
 @end
